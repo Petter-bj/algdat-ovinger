@@ -38,8 +38,21 @@ int main() {
         'A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C', '!'
     };
 
-    Match match = finnBesteMatch(data, 3);
+    std::size_t pos = 0;
 
-    std::cout << "Avstand: " << match.avstand << '\n';
-    std::cout << "Lengde: " << match.lengde << '\n';
+    while (pos < data.size()) {
+        Match match = finnBesteMatch(data, pos);
+
+        if (match.lengde >= 3) {
+            std::cout << "Referanse: avstand " << match.avstand
+                      << ", lengde " << match.lengde << '\n';
+
+            pos += match.lengde;
+        } else {
+            std::cout << "Direkte: "
+                      << static_cast<char>(data[pos]) << '\n';
+
+            ++pos;
+        }
+    }
 }

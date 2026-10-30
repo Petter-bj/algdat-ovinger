@@ -37,6 +37,52 @@ Match finnBesteMatch(
     return beste;
 }
 
+std::vector<unsigned char> pakkUt(
+    const std::vector<unsigned char>& komprimert
+) {
+    std::vector<unsigned char> resultat;
+    std::size_t pos = 0;
+
+    while (pos < komprimert.size()) {
+        unsigned char merke = komprimert[pos];
+        ++pos;
+
+        if (merke == 0) {
+            if (pos >= komprimert.size()) {
+                throw std::runtime_error("Mangler direkte byte");
+            }
+
+            resultat.push_back(komprimert[pos]);
+            ++pos;
+
+        } else if (merke == 1) {
+            if (komprimert.size() - pos < 2) {
+                throw std::runtime_error("Ufullstendig referanse");
+            }
+
+            std::size_t avstand = komprimert[pos];
+            std::size_t lengde = komprimert[pos + 1];
+            pos += 2;
+
+            if (avstand == 0 || avstand > resultat.size() || lengde == 0) {
+                throw std::runtime_error("Ugyldig referanse");
+            }
+
+            std::size_t start = resultat.size() - avstand;
+
+            for (std::size_t i = 0; i < lengde; ++i) {
+                unsigned char byte = resultat[start + i];
+                resultat.push_back(byte);
+            }
+
+        } else {
+            throw std::runtime_error("Ukjent merke");
+        }
+    }
+
+    return resultat;
+}
+
 int main() {
     std::vector<unsigned char> data{
         'A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C', '!'
@@ -73,4 +119,12 @@ int main() {
     std::cout << "\n";
     std::cout << "Orginal:" << data.size() << "bytes \n";
     std::cout << "Komprimert " << komprimert.size() << "byets\n";
+
+    std::vector<unsigned char> utpakket = pakkUt(komprimert);
+
+    if (utpakket == data) {
+        std::cout << "Utpakkingen gjenskaper originalen!\n";
+    } else {
+        std::cout << "Feil: Utpakket data er forskjellig fra originalen.\n";
+    }
 }

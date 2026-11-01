@@ -1,6 +1,8 @@
 #include <cstddef>
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <string>
 
 struct Match {
     std::size_t avstand;
@@ -81,6 +83,48 @@ std::vector<unsigned char> pakkUt(
     }
 
     return resultat;
+}
+
+std::vector<unsigned char> lesFil(const std::string& filnavn) {
+    std::ifstream fil(filnavn, std::ios::binary);
+
+    if (!fil) {
+        throw std::runtime_error("Kunne ikke åpne: " + filnavn);
+    }
+
+    std::vector<unsigned char> data;
+    char byte;
+
+    while (fil.get(byte)) {
+        data.push_back(static_cast<unsigned char>(byte));
+    }
+
+    if (!fil.eof()) {
+        throw std::runtime_error("Feil ved lesing: " + filnavn);
+    }
+
+    return data;
+}
+
+void skrivFil(
+    const std::string& filnavn,
+    const std::vector<unsigned char>& data
+) {
+    std::ofstream fil(filnavn, std::ios::binary);
+
+    if (!fil) {
+        throw std::runtime_error("Kunne ikke opprette: " + filnavn);
+    }
+
+    for (unsigned char byte : data) {
+        fil.put(static_cast<char>(byte));
+    }
+
+    fil.close();
+
+    if (!fil) {
+        throw std::runtime_error("Feil ved skriving: " + filnavn);
+    }
 }
 
 int main() {
